@@ -1,0 +1,89 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Data {
+  begin     DateTime?
+  createdAt DateTime          @default(now())
+  data      Json?
+  dataType  EnumDataDataType?
+  digest    String?
+  end       DateTime?
+  id        String            @id @default(cuid())
+  records   Record[]
+  updatedAt DateTime          @updatedAt
+}
+
+model Dbc {
+  bytes     Json?
+  createdAt DateTime  @default(now())
+  id        String    @id @default(cuid())
+  name      String?
+  updatedAt DateTime  @updatedAt
+  vehicles  Vehicle[]
+  version   String?
+}
+
+model Vehicle {
+  color          String?
+  createdAt      DateTime        @default(now())
+  dbc            Dbc?            @relation(fields: [dbcId], references: [id])
+  dbcId          String?
+  id             String          @id @default(cuid())
+  image          Json?
+  make           String?
+  model          String?
+  name           String?
+  records        Record[]
+  secrets        String?
+  trim           String?
+  typeField      String?
+  updatedAt      DateTime        @updatedAt
+  vehicleSecrets VehicleSecret[]
+  vin            String?
+  year           Int?
+}
+
+model Record {
+  begin     DateTime?
+  createdAt DateTime  @default(now())
+  data      Data?     @relation(fields: [dataId], references: [id])
+  dataId    String?
+  end       DateTime?
+  id        String    @id @default(cuid())
+  updatedAt DateTime  @updatedAt
+  vehicle   Vehicle?  @relation(fields: [vehicleId], references: [id])
+  vehicleId String?
+}
+
+model User {
+  createdAt DateTime @default(now())
+  email     String?  @unique
+  firstName String?
+  id        String   @id @default(cuid())
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
+
+model VehicleSecret {
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  key       String?
+  updatedAt DateTime @updatedAt
+  vehicle   Vehicle? @relation(fields: [vehicleId], references: [id])
+  vehicleId String?
+}
+
+enum EnumDataDataType {
+  CAN
+  IMU
+  GPS
+}
